@@ -227,4 +227,24 @@ export class OrderService {
     await order.save();
     return order;
   }
+
+  //User nhận hàng
+  async confirmOrderReceived(userId: string, orderId: string): Promise<Order> {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException('Không tìm thấy tài khoản');
+
+    const order = await this.orderModel.findOne({ _id: orderId, userId });
+    if (!order) throw new NotFoundException('Không tìm thấy đơn hàng');
+
+    order.status = 'completed';
+    await order.save();
+
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Gia đơn hàng thành công',
+      text: ` Đơn hàng có mã: ${orderId} đã được giao thành công. Vui lòng vào đánh giá sản phẩm. `,
+    });
+
+    return order;
+  }
 }

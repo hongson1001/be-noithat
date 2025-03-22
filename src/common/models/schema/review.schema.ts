@@ -3,17 +3,20 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Review {
-  @Prop()
+  @Prop({ required: true })
   productId: string;
 
-  @Prop()
+  @Prop({ required: true })
+  orderId: string;
+
+  @Prop({ required: true })
   userId: string;
 
-  @Prop()
-  reating: number;
+  @Prop({ required: true, min: 1, max: 5 })
+  rating: number;
 
   @Prop()
-  commnet: string;
+  comment: string;
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);

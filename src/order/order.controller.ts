@@ -82,6 +82,31 @@ export class OrderController {
     }
   }
 
+  @Put('/:orderId/receive')
+  @UseGuards(UserAuthGuard || AdminAuthGuard)
+  async confirmOrderReceived(
+    @Request() req: any,
+    @Param('orderId') orderId: string,
+  ) {
+    try {
+      const userId = req.user?.sub;
+      const response = await this.orderService.confirmOrderReceived(
+        userId,
+        orderId,
+      );
+
+      return new ResponseContentModel(
+        200,
+        'Cập nhập trạng thái dơn hàng thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
   @Get()
   @UseGuards(UserAuthGuard)
   async getUserOrders(
