@@ -1,0 +1,122 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { CartService } from './cart.service';
+import { UserAuthGuard } from '../common/middleware/user.middleware';
+import {
+  AddToCartDto,
+  RemoveCartDto,
+  UpdateCartItemDto,
+} from '../common/models/dto/cart.dto';
+import {
+  ErrorResponseModel,
+  ResponseContentModel,
+} from '../common/models/response';
+
+@Controller('cart')
+export class CartController {
+  constructor(private readonly cartService: CartService) {}
+
+  @Post('add-to-cart')
+  @UseGuards(UserAuthGuard)
+  async addToCart(@Request() req: any, @Body() data: AddToCartDto) {
+    try {
+      const userId = req.user?.sub;
+
+      const response = await this.cartService.addToCart(userId, data);
+
+      return new ResponseContentModel(
+        200,
+        'Thêm sản phảm vào giỏ hàng thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
+  @Get('my-cart')
+  @UseGuards(UserAuthGuard)
+  async myCart(@Request() req: any) {
+    try {
+      const userId = req.user?.sub;
+
+      const response = await this.cartService.getCart(userId);
+
+      return new ResponseContentModel(200, 'Lấy giỏ hàng thành công', response);
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
+  @Patch('update-cart')
+  @UseGuards(UserAuthGuard)
+  async updateCart(@Request() req: any, data: UpdateCartItemDto) {
+    try {
+      const userId = req.user?.sub;
+
+      const response = await this.cartService.updateCartItem(userId, data);
+
+      return new ResponseContentModel(
+        200,
+        'Cập nhập giỏ hàng thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
+  @Delete('remove-product')
+  @UseGuards(UserAuthGuard)
+  async removeCartItem(@Request() req: any, data: RemoveCartDto) {
+    try {
+      const userId = req.user?.sub;
+
+      const response = await this.cartService.removeCartItem(userId, data);
+
+      return new ResponseContentModel(
+        200,
+        'Xoá sản phẩm giỏ hàng thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
+  @Delete('remove-product')
+  @UseGuards(UserAuthGuard)
+  async clearCart(@Request() req: any) {
+    try {
+      const userId = req.user?.sub;
+
+      const response = await this.cartService.clearCart(userId);
+
+      return new ResponseContentModel(
+        200,
+        'Làm trống giỏ hàng thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+}

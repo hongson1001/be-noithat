@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo_noi_that
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: hongson
+      MONGO_INITDB_ROOT_PASSWORD: phamhongson
+      MONGO_INITDB_DATABASE: shop
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "27150:27017"
+    networks:
+      - mongo-fashion
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "-u", "hongson", "-p", "phamhongson", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      retries: 5
+      timeout: 10s
+      start_period: 120s
+
+networks:
+  mongo-fashion:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local

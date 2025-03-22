@@ -1,0 +1,120 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import { UserInfoService } from './user-info.service';
+import { UserAuthGuard } from '../common/middleware/user.middleware';
+import {
+  ErrorResponseModel,
+  PaginationSet,
+  ResponseContentModel,
+} from '../common/models/response';
+import {
+  AddressDto,
+  UpdateAddressDto,
+} from '../common/models/dto/user-info.dto';
+import { UserInformation } from '../common/models/schema/user-info.schema';
+
+@Controller('user-info')
+export class UserInfoController {
+  constructor(private readonly userInfoService: UserInfoService) {}
+
+  @Put()
+  @UseGuards(UserAuthGuard)
+  async updateUserInformation(
+    @Request() req: any,
+    @Body() updateUserInformationDto: UpdateAddressDto,
+  ) {
+    try {
+      const userId = req.user.sub;
+
+      const response = await this.userInfoService.updateUserInformation(
+        userId,
+        updateUserInformationDto,
+      );
+
+      return new ResponseContentModel<any>(
+        200,
+        'Cập nhập thông tin thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
+  @Get('user')
+  @UseGuards(UserAuthGuard)
+  async getUserInfoByUser(@Request() req: any) {
+    try {
+      const userId = req.user.sub;
+
+      const userInfo = await this.userInfoService.getUserInfoByUser(userId);
+
+      return new ResponseContentModel<UserInformation>(
+        200,
+        'Lấy thông tin thành công',
+        userInfo,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
+  @Post('update/address')
+  @UseGuards(UserAuthGuard)
+  async addAddress(@Request() req: any, @Body() addressDto: AddressDto) {
+    try {
+      const userId = req.user.sub;
+
+      const response = await this.userInfoService.addAddress(
+        userId,
+        addressDto,
+      );
+
+      return new ResponseContentModel<any>(201, 'Thành công', response);
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
+  @Get('user-information/address')
+  @UseGuards(UserAuthGuard)
+  async listAddress(
+    @Request() req: any,
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 10,
+  ) {
+    try {
+      const userId = req.user.sub;
+
+      const response = await this.userInfoService.listAddress(
+        userId,
+        page,
+        pageSize,
+      );
+
+      return new ResponseContentModel<PaginationSet<any>>(
+        200,
+        'Thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+}
