@@ -3,6 +3,8 @@ import { BlogService } from './blog.service';
 import { BlogController } from './blog.controller';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Blog, BlogSchema } from '../common/models/schema/blog.schema';
 
 @Module({
   imports: [
@@ -13,6 +15,7 @@ import { JwtModule } from '@nestjs/jwt';
         expiresIn: '1h',
       },
     }),
+    MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
   ],
   controllers: [BlogController],
   providers: [BlogService],

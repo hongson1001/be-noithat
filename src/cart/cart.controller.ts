@@ -100,7 +100,7 @@ export class CartController {
     }
   }
 
-  @Delete('remove-product')
+  @Delete('clear-cart')
   @UseGuards(UserAuthGuard)
   async clearCart(@Request() req: any) {
     try {

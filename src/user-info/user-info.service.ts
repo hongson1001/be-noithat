@@ -9,7 +9,7 @@ import { User, UserDocument } from '../common/models/schema/user.schema';
 import { PaginationSet } from '../common/models/response';
 import {
   AddressDto,
-  UpdateAddressDto,
+  UpdateUserInformationDto,
 } from '../common/models/dto/user-info.dto';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class UserInfoService {
   //#region UserInfomation
   async updateUserInformation(
     userId: string,
-    updateUserInformationDto: UpdateAddressDto,
+    updateUserInformationDto: UpdateUserInformationDto,
   ): Promise<any> {
     const checkUser = await this.userModel.findOne({ _id: userId });
     if (!checkUser) {

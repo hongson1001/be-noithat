@@ -39,7 +39,7 @@ class Address {
 
 @Schema({ timestamps: true })
 export class UserInformation {
-  @Prop({ required: true, ref: 'User' })
+  @Prop()
   userId: string;
 
   @Prop()

@@ -149,7 +149,7 @@ export class UserController {
     }
   }
 
-  @Get('/id')
+  @Get('detail')
   @UseGuards(UserAuthGuard)
   async detail(@Request() req: any) {
     try {

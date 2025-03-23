@@ -17,7 +17,7 @@ import {
 } from '../common/models/response';
 import {
   AddressDto,
-  UpdateAddressDto,
+  UpdateUserInformationDto,
 } from '../common/models/dto/user-info.dto';
 import { UserInformation } from '../common/models/schema/user-info.schema';
 
@@ -29,7 +29,7 @@ export class UserInfoController {
   @UseGuards(UserAuthGuard)
   async updateUserInformation(
     @Request() req: any,
-    @Body() updateUserInformationDto: UpdateAddressDto,
+    @Body() updateUserInformationDto: UpdateUserInformationDto,
   ) {
     try {
       const userId = req.user.sub;

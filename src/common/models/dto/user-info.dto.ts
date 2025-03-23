@@ -102,10 +102,6 @@ export class CreateUserInformationDto {
 export class UpdateUserInformationDto {
   @IsOptional()
   @IsString()
-  userId: string;
-
-  @IsOptional()
-  @IsString()
   idProfile: string; // Căn cước công dân
 
   @IsOptional()
@@ -115,10 +111,6 @@ export class UpdateUserInformationDto {
   @IsOptional()
   @IsString()
   phoneNumber: string;
-
-  @IsOptional()
-  @IsString()
-  email: string;
 
   @IsOptional()
   @IsString()
