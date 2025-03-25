@@ -12,7 +12,7 @@ import {
   ErrorResponseModel,
   ResponseContentModel,
 } from '../common/models/response';
-import { AdminAuthGuard } from '../common/middleware/admin.middleware';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('admin')
 export class AdminController {
@@ -49,7 +49,7 @@ export class AdminController {
   }
 
   @Post('logout')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async logout(@Req() req: Request) {
     try {
       const authorization = req.headers['authorization'];

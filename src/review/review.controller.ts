@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
-import { UserAuthGuard } from '../common/middleware/user.middleware';
 import {
   CreateReviewDto,
   UpdateReviewDto,
@@ -20,13 +19,14 @@ import {
   ErrorResponseModel,
   ResponseContentModel,
 } from '../common/models/response';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Post()
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async creatReview(@Request() req: any, @Body() data: CreateReviewDto) {
     try {
       const userId = req.user?.sub;
@@ -42,7 +42,7 @@ export class ReviewController {
   }
 
   @Patch()
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async updateReview(@Request() req: any, @Body() data: UpdateReviewDto) {
     try {
       const userId = req.user?.sub;
@@ -58,7 +58,7 @@ export class ReviewController {
   }
 
   @Get('product/:productId')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async getProductReviews(
     @Param('productId') productId: string,
     @Query('page') page: number = 1,
@@ -84,7 +84,7 @@ export class ReviewController {
   }
 
   @Get()
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async getReviewDetail(@Request() req: any) {
     try {
       const userId = req.user?.sub;
@@ -104,7 +104,7 @@ export class ReviewController {
   }
 
   @Delete()
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async deleteReview(@Request() req: any) {
     try {
       const userId = req.user?.sub;

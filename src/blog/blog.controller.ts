@@ -15,15 +15,14 @@ import {
   ResponseContentModel,
 } from '../common/models/response';
 import { CreateBlogDto, UpdateBlogDto } from '../common/models/dto/blog.dto';
-import { AdminAuthGuard } from '../common/middleware/admin.middleware';
-import { UserAuthGuard } from '../common/middleware/user.middleware';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('blog')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @Post()
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async createBlog(@Body() data: CreateBlogDto) {
     try {
       const response = await this.blogService.create(data);
@@ -36,7 +35,7 @@ export class BlogController {
   }
 
   @Get()
-  @UseGuards(AdminAuthGuard || UserAuthGuard)
+  @UseGuards(AuthGuard)
   async getBlogs(@Query('page') page = 1, @Query('limit') limit = 10) {
     try {
       const response = await this.blogService.list(page, limit);
@@ -53,7 +52,7 @@ export class BlogController {
   }
 
   @Get(':blogId')
-  @UseGuards(AdminAuthGuard || UserAuthGuard)
+  @UseGuards(AuthGuard)
   async getBlogById(@Param('blogId') blogId: string) {
     try {
       const response = await this.blogService.detail(blogId);
@@ -70,7 +69,7 @@ export class BlogController {
   }
 
   @Patch(':blogId')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async updateBlog(
     @Param('blogId') blogId: string,
     @Body() data: UpdateBlogDto,
@@ -90,7 +89,7 @@ export class BlogController {
   }
 
   @Delete(':blogId')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async deleteBlog(@Param('blogId') blogId: string) {
     try {
       const response = await this.blogService.remove(blogId);

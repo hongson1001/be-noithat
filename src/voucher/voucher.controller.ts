@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { VoucherService } from './voucher.service';
-import { AdminAuthGuard } from '../common/middleware/admin.middleware';
 import {
   CreateVoucherDto,
   UpdateVoucherDto,
@@ -19,14 +18,14 @@ import {
   ErrorResponseModel,
   ResponseContentModel,
 } from '../common/models/response';
-import { UserAuthGuard } from '../common/middleware/user.middleware';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('voucher')
 export class VoucherController {
   constructor(private readonly voucherService: VoucherService) {}
 
   @Post()
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async create(@Body() data: CreateVoucherDto) {
     try {
       const response = await this.voucherService.create(data);
@@ -40,7 +39,7 @@ export class VoucherController {
   }
 
   @Put('/:voucherId')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async modify(
     @Param('voucherId') voucherId: string,
     @Body() data: UpdateVoucherDto,
@@ -57,7 +56,7 @@ export class VoucherController {
   }
 
   @Delete('/:voucherId')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async remove(@Param('voucherId') voucherId: string) {
     try {
       const response = await this.voucherService.remove(voucherId);
@@ -71,7 +70,7 @@ export class VoucherController {
   }
 
   @Get()
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async list(
     @Query('page') page: number = 10,
     @Query('limit') limit: number = 1,
@@ -93,7 +92,7 @@ export class VoucherController {
   }
 
   @Get('/:voucherId')
-  @UseGuards(AdminAuthGuard || UserAuthGuard)
+  @UseGuards(AuthGuard)
   async detail(@Param('voucherId') voucherId: string) {
     try {
       const response = await this.voucherService.detail(voucherId);
@@ -111,7 +110,7 @@ export class VoucherController {
   }
 
   @Get('active')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async findActiveVouchers() {
     try {
       const response = await this.voucherService.findActiveVouchers();

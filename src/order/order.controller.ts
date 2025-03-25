@@ -11,20 +11,19 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { UserAuthGuard } from '../common/middleware/user.middleware';
 import { CreateOrderDto } from '../common/models/dto/order.dto';
 import {
   ErrorResponseModel,
   ResponseContentModel,
 } from '../common/models/response';
-import { AdminAuthGuard } from '../common/middleware/admin.middleware';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async createOrder(@Request() req: any, @Body() data: CreateOrderDto) {
     try {
       const userId = req.user?.sub;
@@ -40,7 +39,7 @@ export class OrderController {
   }
 
   @Patch('/:orderId/status')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async updateOrderStatus(
     @Param('orderId') orderId: string,
     @Body('status') status: string,
@@ -64,7 +63,7 @@ export class OrderController {
   }
 
   @Put('/:orderId/cancel')
-  @UseGuards(UserAuthGuard || AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async cancelOrder(@Request() req: any, @Param('orderId') orderId: string) {
     try {
       const userId = req.user?.sub;
@@ -83,7 +82,7 @@ export class OrderController {
   }
 
   @Put('/:orderId/receive')
-  @UseGuards(UserAuthGuard || AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async confirmOrderReceived(
     @Request() req: any,
     @Param('orderId') orderId: string,
@@ -108,7 +107,7 @@ export class OrderController {
   }
 
   @Get()
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async getUserOrders(
     @Request() req: any,
     @Query('page') page: number = 1,
@@ -135,7 +134,7 @@ export class OrderController {
   }
 
   @Get('admin')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async listOrders(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -156,7 +155,7 @@ export class OrderController {
   }
 
   @Get('/:orderId')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async detail(@Param('orderId') orderId: string) {
     try {
       const response = await this.orderService.detail(orderId);

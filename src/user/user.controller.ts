@@ -21,9 +21,8 @@ import {
   PaginationSet,
   ResponseContentModel,
 } from '../common/models/response';
-import { UserAuthGuard } from '../common/middleware/user.middleware';
 import { User } from '../common/models/schema/user.schema';
-import { AdminAuthGuard } from '../common/middleware/admin.middleware';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('user')
 export class UserController {
@@ -101,7 +100,7 @@ export class UserController {
   }
 
   @Post('logout')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async logoutUser(@Req() req: Request) {
     try {
       const authorization = req.headers['authorization'];
@@ -127,7 +126,7 @@ export class UserController {
 
   //#region CRUD
   @Get()
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async list(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -150,7 +149,7 @@ export class UserController {
   }
 
   @Get('detail')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async detail(@Request() req: any) {
     try {
       const userId = req.user?.sub;

@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { AdminAuthGuard } from '../common/middleware/admin.middleware';
 import {
   CreateProductDto,
   UpdateProductDto,
@@ -19,14 +18,14 @@ import {
   ErrorResponseModel,
   ResponseContentModel,
 } from '../common/models/response';
-import { UserAuthGuard } from '../common/middleware/user.middleware';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async create(@Body() data: CreateProductDto) {
     try {
       const response = await this.productService.create(data);
@@ -40,7 +39,7 @@ export class ProductController {
   }
 
   @Put('/:productId')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async modify(
     @Param('productId') productId: string,
     @Body() data: UpdateProductDto,
@@ -57,7 +56,7 @@ export class ProductController {
   }
 
   @Delete('/:productId')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async remove(@Param('productId') productId: string) {
     try {
       const response = await this.productService.remove(productId);
@@ -71,7 +70,7 @@ export class ProductController {
   }
 
   @Get('/:productId')
-  @UseGuards(AdminAuthGuard || UserAuthGuard)
+  @UseGuards(AuthGuard)
   async detail(@Param('productId') productId: string) {
     try {
       const response = await this.productService.detail(productId);
@@ -85,7 +84,7 @@ export class ProductController {
   }
 
   @Get()
-  @UseGuards(AdminAuthGuard || UserAuthGuard)
+  @UseGuards(AuthGuard)
   async list(
     @Query('page') page: number = 10,
     @Query('limit') limit: number = 1,

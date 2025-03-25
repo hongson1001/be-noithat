@@ -9,7 +9,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { UserAuthGuard } from '../common/middleware/user.middleware';
 import {
   AddToCartDto,
   RemoveCartDto,
@@ -19,13 +18,14 @@ import {
   ErrorResponseModel,
   ResponseContentModel,
 } from '../common/models/response';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post('add-to-cart')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async addToCart(@Request() req: any, @Body() data: AddToCartDto) {
     try {
       const userId = req.user?.sub;
@@ -45,7 +45,7 @@ export class CartController {
   }
 
   @Get('my-cart')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async myCart(@Request() req: any) {
     try {
       const userId = req.user?.sub;
@@ -61,7 +61,7 @@ export class CartController {
   }
 
   @Patch('update-cart')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async updateCart(@Request() req: any, data: UpdateCartItemDto) {
     try {
       const userId = req.user?.sub;
@@ -81,7 +81,7 @@ export class CartController {
   }
 
   @Delete('remove-product')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async removeCartItem(@Request() req: any, data: RemoveCartDto) {
     try {
       const userId = req.user?.sub;
@@ -101,7 +101,7 @@ export class CartController {
   }
 
   @Delete('clear-cart')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async clearCart(@Request() req: any) {
     try {
       const userId = req.user?.sub;

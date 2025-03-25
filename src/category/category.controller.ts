@@ -10,24 +10,23 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { AdminAuthGuard } from '../common/middleware/admin.middleware';
 import {
   CreateCategoryDto,
   UpdateCategoryDto,
 } from '../common/models/dto/category.dto';
-import { UserAuthGuard } from '../common/middleware/user.middleware';
 import {
   ErrorResponseModel,
   ResponseContentModel,
 } from '../common/models/response';
 import { Category } from '../common/models/schema/category.schema';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async create(@Body() data: CreateCategoryDto) {
     try {
       const response = await this.categoryService.create(data);
@@ -45,7 +44,7 @@ export class CategoryController {
   }
 
   @Put(':cateId')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async modify(
     @Param('cateId') cateId: string,
     @Body() data: UpdateCategoryDto,
@@ -66,7 +65,7 @@ export class CategoryController {
   }
 
   @Get()
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async list(@Query('search') search?: string) {
     try {
       const response = await this.categoryService.list(search);
@@ -84,7 +83,7 @@ export class CategoryController {
   }
 
   @Get(':cateId')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async detail(@Param('cateId') cateId: string) {
     try {
       const response = await this.categoryService.detail(cateId);
@@ -102,7 +101,7 @@ export class CategoryController {
   }
 
   @Delete(':cateId')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(AuthGuard)
   async remove(@Param('cateId') cateId: string) {
     try {
       const response = await this.categoryService.remove(cateId);

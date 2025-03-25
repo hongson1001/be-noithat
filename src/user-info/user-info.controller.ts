@@ -9,7 +9,6 @@ import {
   Request,
 } from '@nestjs/common';
 import { UserInfoService } from './user-info.service';
-import { UserAuthGuard } from '../common/middleware/user.middleware';
 import {
   ErrorResponseModel,
   PaginationSet,
@@ -20,13 +19,14 @@ import {
   UpdateUserInformationDto,
 } from '../common/models/dto/user-info.dto';
 import { UserInformation } from '../common/models/schema/user-info.schema';
+import { AuthGuard } from '../common/middleware/auth.middleware';
 
 @Controller('user-info')
 export class UserInfoController {
   constructor(private readonly userInfoService: UserInfoService) {}
 
   @Put()
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async updateUserInformation(
     @Request() req: any,
     @Body() updateUserInformationDto: UpdateUserInformationDto,
@@ -52,7 +52,7 @@ export class UserInfoController {
   }
 
   @Get('user')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async getUserInfoByUser(@Request() req: any) {
     try {
       const userId = req.user.sub;
@@ -72,7 +72,7 @@ export class UserInfoController {
   }
 
   @Post('update/address')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async addAddress(@Request() req: any, @Body() addressDto: AddressDto) {
     try {
       const userId = req.user.sub;
@@ -91,7 +91,7 @@ export class UserInfoController {
   }
 
   @Get('user-information/address')
-  @UseGuards(UserAuthGuard)
+  @UseGuards(AuthGuard)
   async listAddress(
     @Request() req: any,
     @Query('page') page: number = 1,
