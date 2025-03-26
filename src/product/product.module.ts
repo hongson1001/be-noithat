@@ -11,9 +11,9 @@ import { Product, ProductSchema } from '../common/models/schema/product.schema';
     ConfigModule.forRoot(),
     JwtModule.register({
       secret:
-        process.env.USER_SECRET_KEY && process.env.ADMIN_SECRET_KEY
-          ? undefined
-          : process.env.USER_SECRET_KEY || process.env.ADMIN_SECRET_KEY,
+        process.env.ADMIN_SECRET_KEY ||
+        process.env.USER_SECRET_KEY ||
+        'default_secret',
       signOptions: {
         expiresIn: '1h',
       },
