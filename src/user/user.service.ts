@@ -41,8 +41,8 @@ export class UserService {
   //#region Đăng ký tài khoản
   async registerUser(data: RegisterDto): Promise<any> {
     const user = await this.userModel.findOne({ email: data.email }).exec();
-    if (!user) {
-      throw new NotFoundException('Không tìm thấy tài khoản');
+    if (user) {
+      throw new NotFoundException('Tài khoản đã tồn tại');
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
