@@ -10,9 +10,6 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop()
-  code: string;
-
   @Prop({ default: 'active' })
   status: string;
 

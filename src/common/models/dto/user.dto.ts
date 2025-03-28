@@ -1,6 +1,5 @@
 import {
   IsString,
-  IsOptional,
   IsEmail,
   IsNotEmpty,
   MinLength,
@@ -19,10 +18,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(6)
   password: string;
-
-  @IsOptional()
-  @IsString()
-  code?: string;
 }
 
 export class RegisterDto {
