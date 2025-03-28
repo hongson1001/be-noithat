@@ -20,7 +20,7 @@ export class ProductService {
   ) {}
 
   private addImagePrefix(img: string): string {
-    if (img.startsWith('data.image')) return img;
+    if (img.startsWith('data:image')) return img;
     const mimeType =
       img.charAt(0) === '/' ? 'jpeg' : img.charAt(0) === 'i' ? 'png' : 'jpg';
     return `data:image/${mimeType};base64,${img}`;
