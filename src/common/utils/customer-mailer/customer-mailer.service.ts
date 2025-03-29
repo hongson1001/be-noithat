@@ -17,6 +17,11 @@ export class CustomerMailerService {
   }) {
     const { to, subject, text, html } = options;
 
+    if (!to || to.trim() === '') {
+      console.error('🚨 Lỗi: Email người nhận không hợp lệ:', to);
+      throw new Error('Không thể gửi mail: email người nhận không hợp lệ.');
+    }
+
     try {
       await this.mailerService.sendMail({
         to,
