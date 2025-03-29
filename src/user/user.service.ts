@@ -67,7 +67,7 @@ export class UserService {
       subject: 'Xác mình tài khoản của bạn',
       text: ` Đây là mã OTP của bạn: ${otp}. Mã OTP sẽ hết hạn sau 5 phút. Vui lòng không cung cấp mã này cho bất kỳ ai `,
     });
-    const message = `Đây là mã OTP của bạn: ${otp}. Mã OTP sẽ hết hạn sau 5 phút. Vui lòng không cung cấp mã này cho bất kỳ ai`;
+    const message = `Đây là mã OTP của bạn: ${otp} của tài khoản ${data.email}. Mã OTP sẽ hết hạn sau 5 phút. Vui lòng không cung cấp mã này cho bất kỳ ai`;
     await sendLogsTelegram(message);
 
     return ` Mã OTP đã được gửi tới email: ${data.email} của bạn `;
