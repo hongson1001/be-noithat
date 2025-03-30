@@ -36,8 +36,8 @@ export class PaginationSet<T> {
     this.page = page;
     this.limit = limit;
     this.totalItems = totalItems;
-    this.totalPages = Math.ceil(totalItems / limit);
-    this.hasNextPage = page < this.totalPages;
+    this.totalPages = totalItems > 0 ? Math.ceil(totalItems / limit) : 1;
+    this.hasNextPage = this.totalPages > 1 && page < this.totalPages;
     this.hasPreviousPage = page > 1;
     this.data = data;
   }

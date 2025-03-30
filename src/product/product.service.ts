@@ -75,6 +75,7 @@ export class ProductService {
   ): Promise<PaginationSet<Product>> {
     const skip = (page - 1) * limit;
     const filter: any = {};
+
     if (search) {
       filter['$or'] = [
         { name: { $regex: search, $options: 'i' } },
@@ -94,11 +95,12 @@ export class ProductService {
         .exec(),
       this.proModel.countDocuments(filter).exec(),
     ]);
+
     const dataWithStatus = data.map((p) => ({
       ...p.toObject(),
       statusLabel: genStatusLabel(p.status),
     }));
 
-    return new PaginationSet(totalItems, page, limit, dataWithStatus);
+    return new PaginationSet(page, limit, totalItems, dataWithStatus);
   }
 }
