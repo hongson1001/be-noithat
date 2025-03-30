@@ -11,6 +11,8 @@ import {
 } from '../common/models/dto/product.dto';
 import { PaginationSet } from '../common/models/response';
 import { genStatusLabel } from '../common/utils/status.util';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ProductService {
@@ -19,16 +21,27 @@ export class ProductService {
     private readonly proModel: Model<ProductDocument>,
   ) {}
 
-  private addImagePrefix(img: string): string {
-    if (img.startsWith('data:image')) return img;
-    const mimeType =
-      img.charAt(0) === '/' ? 'jpeg' : img.charAt(0) === 'i' ? 'png' : 'jpg';
-    return `data:image/${mimeType};base64,${img}`;
+  private async saveImageLocally(base64: string): Promise<string> {
+    const buffer = Buffer.from(base64.split(',')[1], 'base64');
+    const fileName = `${Date.now()}.jpg`;
+    const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads');
+
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+
+    const filePath = path.join(uploadPath, fileName);
+    await fs.promises.writeFile(filePath, buffer);
+
+    return `/uploads/${fileName}`;
   }
 
   async create(data: CreateProductDto): Promise<Product> {
     if (data.images) {
-      data.images = data.images.map((img) => this.addImagePrefix(img));
+      const imagePaths = await Promise.all(
+        data.images.map((img) => this.saveImageLocally(img)),
+      );
+      data.images = imagePaths;
     }
     const product = new this.proModel(data);
     await product.save();
@@ -37,7 +50,10 @@ export class ProductService {
 
   async modify(productId: string, data: UpdateProductDto): Promise<Product> {
     if (data.images) {
-      data.images = data.images.map((img) => this.addImagePrefix(img));
+      const imagePaths = await Promise.all(
+        data.images.map((img) => this.saveImageLocally(img)),
+      );
+      data.images = imagePaths;
     }
     const product = await this.proModel
       .findByIdAndUpdate(productId, data, { new: true })
@@ -45,7 +61,6 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException('Không tìm thấy sản phẩm');
     }
-
     return product;
   }
 
@@ -54,7 +69,6 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException('Không tìm thấy sản phẩm');
     }
-
     return 'Xoá sản phẩm thành công';
   }
 
@@ -63,7 +77,6 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException('Không tìm thấy sản phẩm');
     }
-
     return product;
   }
 
@@ -98,6 +111,7 @@ export class ProductService {
 
     const dataWithStatus = data.map((p) => ({
       ...p.toObject(),
+      images: p.images?.length ? [p.images[0]] : [],
       statusLabel: genStatusLabel(p.status),
     }));
 
