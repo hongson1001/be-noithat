@@ -15,7 +15,7 @@ import { Product, ProductSchema } from '../common/models/schema/product.schema';
         process.env.USER_SECRET_KEY ||
         'default_secret',
       signOptions: {
-        expiresIn: '1h',
+        expiresIn: '24h',
       },
     }),
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),

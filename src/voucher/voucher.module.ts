@@ -15,7 +15,7 @@ import { Voucher, VoucherSchema } from '../common/models/schema/voucher.schema';
         process.env.USER_SECRET_KEY ||
         'default_secret',
       signOptions: {
-        expiresIn: '1h',
+        expiresIn: '24h',
       },
     }),
     MongooseModule.forFeature([{ name: Voucher.name, schema: VoucherSchema }]),

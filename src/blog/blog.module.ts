@@ -15,7 +15,7 @@ import { Blog, BlogSchema } from '../common/models/schema/blog.schema';
         process.env.USER_SECRET_KEY ||
         'default_secret',
       signOptions: {
-        expiresIn: '1h',
+        expiresIn: '24h',
       },
     }),
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),

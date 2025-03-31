@@ -19,7 +19,7 @@ import { User, UserSchema } from '../common/models/schema/user.schema';
           ? undefined
           : process.env.USER_SECRET_KEY || process.env.ADMIN_SECRET_KEY,
       signOptions: {
-        expiresIn: '1h',
+        expiresIn: '24h',
       },
     }),
     MongooseModule.forFeature([

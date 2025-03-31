@@ -15,7 +15,7 @@ import { Review, ReviewSchema } from '../common/models/schema/review.schema';
         process.env.USER_SECRET_KEY ||
         'default_secret',
       signOptions: {
-        expiresIn: '1h',
+        expiresIn: '24h',
       },
     }),
     MongooseModule.forFeature([{ name: Review.name, schema: ReviewSchema }]),
