@@ -7,6 +7,7 @@ import { PaginationSet } from '../common/models/response';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as sharp from 'sharp';
+import { genStatusLabel } from '../common/utils/status.util';
 
 @Injectable()
 export class BlogService {
@@ -66,12 +67,24 @@ export class BlogService {
 
   async list(page: number, limit: number): Promise<PaginationSet<Blog>> {
     const skip = (page - 1) * limit;
+
     const [data, totalItems] = await Promise.all([
-      this.blogModel.find().skip(skip).limit(limit).exec(),
+      this.blogModel
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .select('title content images status')
+        .exec(),
       this.blogModel.countDocuments().exec(),
     ]);
 
-    return new PaginationSet(totalItems, page, limit, data);
+    const dataWithImages = data.map((b) => ({
+      ...b.toObject(),
+      images: b.image?.length ? [b.image[0]] : [],
+      statusLabel: genStatusLabel(b.status),
+    }));
+
+    return new PaginationSet(page, limit, totalItems, dataWithImages);
   }
 
   async detail(blogId: string): Promise<Blog> {
