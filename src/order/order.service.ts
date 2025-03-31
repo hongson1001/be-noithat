@@ -236,6 +236,18 @@ export class OrderService {
     const order = await this.orderModel.findOne({ _id: orderId, userId });
     if (!order) throw new NotFoundException('Không tìm thấy đơn hàng');
 
+    if (order.status !== 'completed') {
+      await Promise.all(
+        order.items.map(async (item) => {
+          await this.proModel.findByIdAndUpdate(item.productId, {
+            $inc: {
+              sold: item.quantity,
+            },
+          });
+        }),
+      );
+    }
+
     order.status = 'completed';
     await order.save();
 

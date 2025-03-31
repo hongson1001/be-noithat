@@ -104,7 +104,7 @@ export class ProductService {
         .find(filter)
         .skip(skip)
         .limit(limit)
-        .select('categories name price sku size status images')
+        .select('categories name price sku size status images sold')
         .exec(),
       this.proModel.countDocuments(filter).exec(),
     ]);
@@ -116,5 +116,16 @@ export class ProductService {
     }));
 
     return new PaginationSet(page, limit, totalItems, dataWithStatus);
+  }
+
+  async bestSellers(limit: number): Promise<Product[]> {
+    const products = await this.proModel
+      .find()
+      .sort({ sold: -1 })
+      .limit(limit)
+      .select('categories name price sku size status images sold')
+      .exec();
+
+    return products;
   }
 }

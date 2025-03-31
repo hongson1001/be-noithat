@@ -110,4 +110,21 @@ export class ProductController {
       ]);
     }
   }
+
+  @Get('best-sellers')
+  async bestSellers(@Query('limit') limit: number = 10) {
+    try {
+      const response = await this.productService.bestSellers(limit);
+
+      return new ResponseContentModel(
+        200,
+        'lấy danh sách sản phẩm thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
 }

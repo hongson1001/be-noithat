@@ -20,6 +20,7 @@ import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { VoucherModule } from './voucher/voucher.module';
 import { ReviewModule } from './review/review.module';
+import { StatisticalModule } from './statistical/statistical.module';
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ dotenv.config();
     ProductModule,
     VoucherModule,
     ReviewModule,
+    StatisticalModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -15,6 +15,9 @@ export class Product {
   @Prop({ required: true })
   quantity: number;
 
+  @Prop({ default: 0 })
+  sold: number;
+
   @Prop()
   sku: string; //Mã sản phẩm
 
