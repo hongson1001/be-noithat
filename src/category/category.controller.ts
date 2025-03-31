@@ -117,4 +117,21 @@ export class CategoryController {
       ]);
     }
   }
+
+  @Get('parent/:parentId')
+  async findByParentId(@Param('parentId') parentId: string) {
+    try {
+      const response = await this.categoryService.findByParentId(parentId);
+
+      return new ResponseContentModel<Category[]>(
+        200,
+        'Lấy danh sách thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
 }

@@ -65,4 +65,10 @@ export class CategoryService {
 
     return 'Xoá danh mục thành công';
   }
+
+  async findByParentId(parentId: string): Promise<Category[]> {
+    const categories = await this.cateModel.find({ parentId }).exec();
+
+    return categories;
+  }
 }
