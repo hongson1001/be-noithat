@@ -3,17 +3,14 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Patch,
   Post,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
-import {
-  AddToCartDto,
-  RemoveCartDto,
-  UpdateCartItemDto,
-} from '../common/models/dto/cart.dto';
+import { AddToCartDto, UpdateCartItemDto } from '../common/models/dto/cart.dto';
 import {
   ErrorResponseModel,
   ResponseContentModel,
@@ -80,13 +77,16 @@ export class CartController {
     }
   }
 
-  @Delete('remove-product')
+  @Delete('remove-product/:productId')
   @UseGuards(AuthGuard)
-  async removeCartItem(@Request() req: any, @Body() data: RemoveCartDto) {
+  async removeCartItem(
+    @Request() req: any,
+    @Param('productId') productId: string,
+  ) {
     try {
       const userId = req.user?.sub;
 
-      const response = await this.cartService.removeCartItem(userId, data);
+      const response = await this.cartService.removeCartItem(userId, productId);
 
       return new ResponseContentModel(
         200,

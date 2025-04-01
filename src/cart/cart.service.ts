@@ -10,11 +10,7 @@ import {
   Product,
   ProductDocument,
 } from '../common/models/schema/product.schema';
-import {
-  AddToCartDto,
-  RemoveCartDto,
-  UpdateCartItemDto,
-} from '../common/models/dto/cart.dto';
+import { AddToCartDto, UpdateCartItemDto } from '../common/models/dto/cart.dto';
 import { Types } from 'mongoose';
 
 @Injectable()
@@ -103,16 +99,16 @@ export class CartService {
     return cart;
   }
 
-  async removeCartItem(userId: string, data: RemoveCartDto): Promise<any> {
+  async removeCartItem(userId: string, productId: string): Promise<any> {
     const cart = await this.cartModel.findOne({ userId });
     if (!cart) {
       throw new NotFoundException('Không tìm thấy giỏ hàng');
     }
 
-    const productId = new Types.ObjectId(data.productId);
+    const productIdObj = new Types.ObjectId(productId);
 
     const cartItem = cart.items.find((item) =>
-      new Types.ObjectId(item.productId).equals(productId),
+      new Types.ObjectId(item.productId).equals(productIdObj),
     );
 
     if (!cartItem)
@@ -125,7 +121,7 @@ export class CartService {
     }
 
     cart.items = cart.items.filter(
-      (item) => !new Types.ObjectId(item.productId).equals(productId),
+      (item) => !new Types.ObjectId(item.productId).equals(productIdObj),
     );
 
     await cart.save();
