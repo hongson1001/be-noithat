@@ -13,6 +13,7 @@ import {
 import { Product, ProductSchema } from '../common/models/schema/product.schema';
 import { Voucher, VoucherSchema } from '../common/models/schema/voucher.schema';
 import { User, UserSchema } from '../common/models/schema/user.schema';
+import { Cart, CartSchema } from '../common/models/schema/cart.schema';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { User, UserSchema } from '../common/models/schema/user.schema';
       { name: Product.name, schema: ProductSchema },
       { name: Voucher.name, schema: VoucherSchema },
       { name: User.name, schema: UserSchema },
+      { name: Cart.name, schema: CartSchema },
     ]),
   ],
   controllers: [OrderController],

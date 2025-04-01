@@ -23,6 +23,7 @@ import {
 } from '../common/models/schema/voucher.schema';
 import { User, UserDocument } from '../common/models/schema/user.schema';
 import { PaginationSet } from '../common/models/response';
+import { Cart, CartDocument } from '../common/models/schema/cart.schema';
 
 @Injectable()
 export class OrderService {
@@ -37,6 +38,8 @@ export class OrderService {
     private voucherModel: Model<VoucherDocument>,
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
+    @InjectModel(Cart.name)
+    private cartModel: Model<CartDocument>,
 
     private readonly mailerService: CustomerMailerService,
     private readonly configService: ConfigService,
@@ -73,43 +76,40 @@ export class OrderService {
     if (!user) throw new NotFoundException('Không tìm thấy tài khoản');
 
     let totalPrice = 0;
-    const items = [];
 
-    for (const item of data.items) {
+    // Xử lý sản phẩm song song
+    const productUpdates = data.items.map(async (item) => {
       const product = await this.proModel.findById(item.productId);
       if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
-      if (product.quantity < item.quantity) {
+      if (product.quantity < item.quantity)
         throw new BadGatewayException('Số lượng sản phẩm không đủ');
-      }
 
       product.quantity -= item.quantity;
       await product.save();
 
-      items.push(
-        new this.oiModel({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: product.price,
-        }),
-      );
       totalPrice += product.price * item.quantity;
-    }
+
+      return new this.oiModel({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: product.price,
+      });
+    });
+
+    const items = await Promise.all(productUpdates);
 
     if (data.voucherId) {
       const voucher = await this.voucherModel.findById(data.voucherId);
-      if (!voucher) throw new NotFoundException('Không tìm thấy voucher');
-      if (
-        !voucher.isActive ||
-        (voucher.expiryDate && new Date() > voucher.expiryDate)
-      ) {
+      if (!voucher || !voucher.isActive)
+        throw new BadGatewayException('Voucher không hợp lệ');
+      if (voucher.expiryDate && new Date() > voucher.expiryDate)
         throw new BadGatewayException('Voucher đã quá hạn');
-      }
-      if (voucher.quantity <= 0) {
+      if (voucher.quantity <= 0)
         throw new BadGatewayException('Voucher đã hết lượt sử dụng');
-      }
-      if (totalPrice < voucher.minOrderValue) {
-        throw new BadGatewayException('Giá trị đơn hàng chưa đủ');
-      }
+      if (totalPrice < voucher.minOrderValue)
+        throw new BadGatewayException(
+          'Giá trị đơn hàng chưa đủ để áp dụng voucher',
+        );
 
       const discountAmount = voucher.isPercentage
         ? (totalPrice * voucher.discount) / 100
@@ -131,26 +131,25 @@ export class OrderService {
     });
     await order.save();
 
-    await this.mailerService.sendMail({
-      to: user.email,
-      subject: 'Đặt hàng thành công',
-      text: `Đơn hàng của bạn đã được đặt thành công với mã đơn hàng: ${order._id}. Vui lòng theo dõi đơn hàng để biết thông tin chi tiết.`,
-    });
-
-    if (data.paymentMethod === 'bank_transfer') {
-      const bankName = this.configService.get('BANK_NAME');
-      const bankNumber = this.configService.get('BANK_NUMBER');
-      const bankAccountName = this.configService.get('BANK_ACCOUNT_NAME');
-
-      return {
-        order,
-        bankInfo: {
-          bankName,
-          bankNumber,
-          bankAccountName,
-          totalPrice,
+    await this.cartModel.updateOne(
+      { userId },
+      {
+        $pull: {
+          items: {
+            productId: { $in: data.items.map((item) => item.productId) },
+          },
         },
-      };
+      },
+    );
+
+    try {
+      await this.mailerService.sendMail({
+        to: user.email,
+        subject: 'Đặt hàng thành công',
+        text: `Mã đơn hàng: ${order._id}`,
+      });
+    } catch (error) {
+      console.error('Lỗi gửi email:', error.message);
     }
 
     return order;
