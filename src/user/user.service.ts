@@ -145,7 +145,7 @@ export class UserService {
       email: user.email,
       sub: user._id,
     };
-    const tokenExpiry = data.isResmember ? '30d' : '1h';
+    const tokenExpiry = data.isResmember ? '30d' : '24h';
 
     try {
       const token = await this.jwtService.signAsync(payload, {
