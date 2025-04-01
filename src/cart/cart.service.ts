@@ -66,14 +66,20 @@ export class CartService {
         select: 'name price images quantity size material',
       })
       .lean();
+  
     if (!cart) throw new NotFoundException('Cart not found');
-
+  
+    // Lọc bỏ các item có productId là null
+    cart.items = cart.items.filter((item) => item.productId);
+  
+    // Tính tổng giá tiền
     const totalPrice = cart.items.reduce((sum, item) => {
       const product = item.productId as any;
       return sum + (product.price || 0) * item.quantity;
     }, 0);
+  
     return { ...cart, totalPrice };
-  }
+  }  
 
   async updateCartItem(userId: string, data: UpdateCartItemDto): Promise<Cart> {
     const cart = await this.cartModel.findOne({ userId });
