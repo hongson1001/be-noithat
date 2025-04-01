@@ -64,7 +64,11 @@ export class CartService {
   async getCart(userId: string): Promise<Cart> {
     const cart = await this.cartModel
       .findOne({ userId })
-      .populate('items.productId');
+      .populate({
+        path: 'items.productId',
+        select: 'name price images quantity',
+      })
+      .lean();
     if (!cart) throw new NotFoundException('Cart not found');
     return cart;
   }
