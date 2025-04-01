@@ -37,25 +37,37 @@ export class BlogService {
   }
 
   async create(data: CreateBlogDto): Promise<Blog> {
-    if (data.image) {
+    if (data.image && data.image.startsWith('data:image')) {
+      console.log('Processing Base64 Image...');
       data.image = await this.saveImageLocally(data.image);
+      console.log('Saved Image Path:', data.image);
+    } else {
+      console.log('No valid image provided.');
     }
 
     const blog = new this.blogModel(data);
-    await blog.save();
-    return blog;
+    const savedBlog = await blog.save();
+
+    console.log('Saved Blog:', savedBlog);
+    return savedBlog;
   }
 
   async modify(blogId: string, data: UpdateBlogDto): Promise<Blog> {
-    if (data.image) {
+    const blog = await this.blogModel.findById(blogId);
+    if (!blog) throw new NotFoundException('Không tìm thấy blog');
+
+    if (data.image && data.image.startsWith('data:image')) {
+      console.log('Processing Base64 Image...');
       data.image = await this.saveImageLocally(data.image);
+      console.log('Saved Image Path:', data.image);
+    } else {
+      console.log('No valid image provided.');
     }
 
-    const updatedBlog = await this.blogModel.findByIdAndUpdate(blogId, data, {
-      new: true,
-    });
+    Object.assign(blog, data); // Cập nhật dữ liệu mới vào object
+    const updatedBlog = await blog.save();
 
-    if (!updatedBlog) throw new NotFoundException('Không tìm thấy blog');
+    console.log('Updated Blog:', updatedBlog);
     return updatedBlog;
   }
 
@@ -73,14 +85,14 @@ export class BlogService {
         .find()
         .skip(skip)
         .limit(limit)
-        .select('title content images status')
+        .select('title content image status')
         .exec(),
       this.blogModel.countDocuments().exec(),
     ]);
 
     const dataWithImages = data.map((b) => ({
       ...b.toObject(),
-      images: b.image?.length ? [b.image[0]] : [],
+      images: b.image ? [b.image] : [],
       statusLabel: genStatusLabel(b.status),
     }));
 
