@@ -66,7 +66,7 @@ export class CartService {
       .findOne({ userId })
       .populate({
         path: 'items.productId',
-        select: 'name price images quantity',
+        select: 'name price images quantity size material',
       })
       .lean();
     if (!cart) throw new NotFoundException('Cart not found');
