@@ -66,10 +66,6 @@ export class CreateUserInformationDto {
   @IsString()
   userId: string;
 
-  @IsOptional()
-  @IsString()
-  idProfile: string; // Căn cước công dân
-
   @IsString()
   fullName: string;
 
@@ -100,10 +96,6 @@ export class CreateUserInformationDto {
 
 // DTO cho UpdateUserInformationDto (cho phép cập nhật thông tin)
 export class UpdateUserInformationDto {
-  @IsOptional()
-  @IsString()
-  idProfile: string; // Căn cước công dân
-
   @IsOptional()
   @IsString()
   fullName: string;
