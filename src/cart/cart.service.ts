@@ -15,6 +15,7 @@ import {
   RemoveCartDto,
   UpdateCartItemDto,
 } from '../common/models/dto/cart.dto';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class CartService {
@@ -102,15 +103,18 @@ export class CartService {
     return cart;
   }
 
-  async removeCartItem(userId: string, data: RemoveCartDto): Promise<Cart> {
+  async removeCartItem(userId: string, data: RemoveCartDto): Promise<any> {
     const cart = await this.cartModel.findOne({ userId });
     if (!cart) {
       throw new NotFoundException('Không tìm thấy giỏ hàng');
     }
 
-    const cartItem = cart.items.find(
-      (item) => item.productId.toString() === data.productId,
+    const productId = new Types.ObjectId(data.productId);
+
+    const cartItem = cart.items.find((item) =>
+      new Types.ObjectId(item.productId).equals(productId),
     );
+
     if (!cartItem)
       throw new NotFoundException('Sản phẩm không có trong giỏ hàng');
 
@@ -120,7 +124,10 @@ export class CartService {
       await product.save();
     }
 
-    cart.items = cart.items.filter((item) => item.productId !== data.productId);
+    cart.items = cart.items.filter(
+      (item) => !new Types.ObjectId(item.productId).equals(productId),
+    );
+
     await cart.save();
     return cart;
   }
