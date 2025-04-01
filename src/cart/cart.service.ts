@@ -109,7 +109,7 @@ export class CartService {
     }
 
     const cartItem = cart.items.find(
-      (item) => item.productId === data.productId,
+      (item) => item.productId.toString() === data.productId,
     );
     if (!cartItem)
       throw new NotFoundException('Sản phẩm không có trong giỏ hàng');

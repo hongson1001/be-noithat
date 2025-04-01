@@ -82,7 +82,7 @@ export class CartController {
 
   @Delete('remove-product')
   @UseGuards(AuthGuard)
-  async removeCartItem(@Request() req: any, data: RemoveCartDto) {
+  async removeCartItem(@Request() req: any,@Body() data: RemoveCartDto) {
     try {
       const userId = req.user?.sub;
 
