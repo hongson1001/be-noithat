@@ -91,24 +91,6 @@ export class VoucherController {
     }
   }
 
-  @Get('/:voucherId')
-  @UseGuards(AuthGuard)
-  async detail(@Param('voucherId') voucherId: string) {
-    try {
-      const response = await this.voucherService.detail(voucherId);
-
-      return new ResponseContentModel(
-        200,
-        'lấy chi tiết voucher thành công',
-        response,
-      );
-    } catch (error) {
-      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
-        [(error as Error).message || 'Unknown error occurred'],
-      ]);
-    }
-  }
-
   @Get('active')
   @UseGuards(AuthGuard)
   async findActiveVouchers() {
@@ -118,6 +100,24 @@ export class VoucherController {
       return new ResponseContentModel(
         200,
         'lấy danh sách voucher thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
+  @Get('/:voucherId')
+  @UseGuards(AuthGuard)
+  async detail(@Param('voucherId') voucherId: string) {
+    try {
+      const response = await this.voucherService.detail(voucherId);
+
+      return new ResponseContentModel(
+        200,
+        'lấy chi tiết voucher thành công',
         response,
       );
     } catch (error) {
