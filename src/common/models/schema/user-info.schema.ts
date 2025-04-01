@@ -3,12 +3,6 @@ import { Document } from 'mongoose';
 
 class Address {
   @Prop()
-  phoneNumber: string;
-
-  @Prop()
-  name: string;
-
-  @Prop()
   address: string;
 
   @Prop({ type: Object, default: {} })

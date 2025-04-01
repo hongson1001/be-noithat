@@ -12,14 +12,6 @@ import { Type } from 'class-transformer';
 
 // DTO cho địa chỉ
 export class AddressDto {
-  @IsString({ message: 'Số điện thoại phải là một chuỗi.' })
-  @IsNotEmpty({ message: 'Số điện thoại không được để trống.' })
-  phoneNumber: string;
-
-  @IsString({ message: 'Tên người nhận phải là một chuỗi.' })
-  @IsNotEmpty({ message: 'Tên người nhận không được để trống.' })
-  name: string;
-
   @IsString()
   @IsNotEmpty({ message: 'Địa chỉ chi tiết không được để trống.' })
   address: string;
