@@ -62,7 +62,7 @@ export class CartController {
 
   @Patch('update-cart')
   @UseGuards(AuthGuard)
-  async updateCart(@Request() req: any, data: UpdateCartItemDto) {
+  async updateCart(@Request() req: any, @Body() data: UpdateCartItemDto) {
     try {
       const userId = req.user?.sub;
 

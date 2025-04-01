@@ -61,7 +61,7 @@ export class CartService {
     return cart;
   }
 
-  async getCart(userId: string): Promise<Cart> {
+  async getCart(userId: string): Promise<any> {
     const cart = await this.cartModel
       .findOne({ userId })
       .populate({
@@ -70,7 +70,12 @@ export class CartService {
       })
       .lean();
     if (!cart) throw new NotFoundException('Cart not found');
-    return cart;
+
+    const totalPrice = cart.items.reduce((sum, item) => {
+      const product = item.productId as any;
+      return sum + (product.price || 0) * item.quantity;
+    }, 0);
+    return { ...cart, totalPrice };
   }
 
   async updateCartItem(userId: string, data: UpdateCartItemDto): Promise<Cart> {
@@ -78,7 +83,7 @@ export class CartService {
     if (!cart) throw new NotFoundException('Cart not found');
 
     const cartItem = cart.items.find(
-      (item) => item.productId === data.productId,
+      (item) => item.productId.toString() === data.productId,
     );
     if (!cartItem) throw new NotFoundException('Item not found in cart');
 
