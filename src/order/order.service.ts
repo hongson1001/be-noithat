@@ -160,11 +160,22 @@ export class OrderService {
     const skip = (page - 1) * limit;
 
     const [data, totalItems] = await Promise.all([
-      this.orderModel.find().skip(skip).limit(limit).populate('items').exec(),
+      this.orderModel
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .populate('userId', 'email')
+        .populate('items')
+        .exec(),
       this.orderModel.countDocuments().exec(),
     ]);
 
-    return new PaginationSet(totalItems, page, limit, data);
+    const formattedOrders = data.map((order) => ({
+      ...order.toObject(),
+      userEmail: (order.userId as any)?.email || 'N/A',
+    }));
+
+    return new PaginationSet(totalItems, page, limit, formattedOrders);
   }
 
   //Lấy danh sách đơn hàng cho user
@@ -185,7 +196,7 @@ export class OrderService {
       this.orderModel.countDocuments({ userId }).exec(),
     ]);
 
-    return new PaginationSet(totalItems, page, limit, data);
+    return new PaginationSet(page, limit, totalItems, data);
   }
 
   //Lấy chi tiết đơn hàng
