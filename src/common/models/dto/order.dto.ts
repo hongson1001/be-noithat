@@ -33,7 +33,7 @@ export class CreateOrderDto {
 }
 
 export class UpdateOrderStatusDto {
-  @IsEnum(['pending', 'processing', 'shipped', 'completed', 'cancelled'])
+  @IsEnum(['pending', 'shipping', 'completed', 'cancelled'])
   @IsNotEmpty()
   status: string;
 }

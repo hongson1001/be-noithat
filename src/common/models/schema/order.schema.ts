@@ -18,7 +18,7 @@ export class Order {
 
   @Prop({
     default: 'pending',
-    enum: ['pending', 'processing', 'shipped', 'completed', 'cancelled'],
+    enum: ['pending', 'shipping', 'completed', 'cancelled'],
   })
   status: string;
 
