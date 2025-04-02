@@ -175,7 +175,7 @@ export class OrderService {
       userEmail: (order.userId as any)?.email || 'N/A',
     }));
 
-    return new PaginationSet(totalItems, page, limit, formattedOrders);
+    return new PaginationSet(page, limit, totalItems, formattedOrders);
   }
 
   //Lấy danh sách đơn hàng cho user
