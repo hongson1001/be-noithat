@@ -26,7 +26,6 @@ export class ReviewService {
   ) {}
 
   async creatReview(userId: string, data: CreateReviewDto): Promise<Review[]> {
-    // Tìm đơn hàng của user
     const order = await this.orderModel
       .findOne({ _id: data.orderId, userId })
       .exec();
@@ -35,28 +34,24 @@ export class ReviewService {
       throw new NotFoundException('Không tìm thấy đơn hàng.');
     }
 
-    // Kiểm tra xem đơn hàng đã được giao thành công chưa
-    if (order.status !== 'delivered') {
+    if (order.status !== 'completed') {
       throw new BadRequestException(
-        'Đơn hàng chưa giao thành công, không thể đánh giá.',
+        'Đơn hàng chưa hoàn thành, không thể đánh giá.',
       );
     }
 
-    // Lấy danh sách các sản phẩm trong đơn hàng
     const orderProductIds = order.items.map((item) =>
-      item.productId.toString(),
+      item.productId._id.toString(),
     );
 
-    // Kiểm tra các sản phẩm được gửi trong request có nằm trong đơn hàng không
     for (const review of data.reviews) {
-      if (!orderProductIds.includes(review.productId)) {
+      if (!orderProductIds.includes(review.productId.toString())) {
         throw new BadRequestException(
           `Sản phẩm ${review.productId} không thuộc đơn hàng này.`,
         );
       }
     }
 
-    // Kiểm tra xem sản phẩm đã được đánh giá chưa
     const existingReviews = await this.reviewModel.find({
       userId,
       orderId: data.orderId,
@@ -75,7 +70,6 @@ export class ReviewService {
       }
     }
 
-    // Lưu đánh giá cho từng sản phẩm đủ điều kiện
     const newReviews = data.reviews.map((reviewData) => ({
       userId,
       orderId: data.orderId,
@@ -145,5 +139,20 @@ export class ReviewService {
       );
     }
     return { message: 'Đã xoá đánh giá thành công.' };
+  }
+
+  async checkReviewed(userId: string, orderId: string, productId?: string) {
+    const query: any = { userId, orderId };
+    if (productId) {
+      query.productId = productId;
+    }
+
+    const existingReviews = await this.reviewModel
+      .find(query)
+      .select('productId');
+
+    return {
+      reviewedProducts: existingReviews.map((r) => r.productId.toString()),
+    };
   }
 }

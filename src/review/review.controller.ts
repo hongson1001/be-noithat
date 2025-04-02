@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
   Query,
   Request,
@@ -107,6 +106,34 @@ export class ReviewController {
       const userId = req.user?.sub;
 
       const response = await this.reviewService.deleteReview(userId);
+
+      return new ResponseContentModel(
+        200,
+        'Lấy danh sấch đánh giá thành công',
+        response,
+      );
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
+
+  @Get('check-reviewed')
+  @UseGuards(AuthGuard)
+  async checkReviewed(
+    @Request() req,
+    @Query('orderId') orderId: string,
+    @Query('productId') productId?: string,
+  ) {
+    try {
+      const userId = req.user?.sub;
+
+      const response = await this.reviewService.checkReviewed(
+        userId,
+        orderId,
+        productId,
+      );
 
       return new ResponseContentModel(
         200,
