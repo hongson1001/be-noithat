@@ -13,12 +13,18 @@ import { PaginationSet } from '../common/models/response';
 import { genStatusLabel } from '../common/utils/status.util';
 import * as fs from 'fs';
 import * as path from 'path';
+import {
+  Category,
+  CategoryDocument,
+} from '../common/models/schema/category.schema';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name)
     private readonly proModel: Model<ProductDocument>,
+    @InjectModel(Category.name)
+    private readonly cateModel: Model<CategoryDocument>,
   ) {}
 
   private async saveImageLocally(base64: string): Promise<string> {
@@ -73,7 +79,13 @@ export class ProductService {
   }
 
   async detail(productId: string): Promise<Product> {
-    const product = await this.proModel.findById(productId).exec();
+    const product = await this.proModel
+      .findById(productId)
+      .populate({
+        path: 'categories',
+        select: '_id name parentId',
+      })
+      .exec();
     if (!product) {
       throw new NotFoundException('Không tìm thấy sản phẩm');
     }

@@ -1,10 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Product {
-  @Prop({ type: [String], default: [] })
-  categories: string[];
+  @Prop({
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Category' }],
+    default: [],
+  })
+  categories: MongooseSchema.Types.ObjectId[];
 
   @Prop({ required: true })
   name: string;

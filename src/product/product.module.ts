@@ -5,6 +5,10 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from '../common/models/schema/product.schema';
+import {
+  Category,
+  CategorySchema,
+} from '../common/models/schema/category.schema';
 
 @Module({
   imports: [
@@ -18,7 +22,10 @@ import { Product, ProductSchema } from '../common/models/schema/product.schema';
         expiresIn: '24h',
       },
     }),
-    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+    MongooseModule.forFeature([
+      { name: Product.name, schema: ProductSchema },
+      { name: Category.name, schema: CategorySchema },
+    ]),
   ],
   controllers: [ProductController],
   providers: [ProductService],
