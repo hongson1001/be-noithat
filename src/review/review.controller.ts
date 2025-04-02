@@ -11,10 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
-import {
-  CreateReviewDto,
-  UpdateReviewDto,
-} from '../common/models/dto/review.dto';
+import { CreateReviewDto } from '../common/models/dto/review.dto';
 import {
   ErrorResponseModel,
   ResponseContentModel,
@@ -41,21 +38,21 @@ export class ReviewController {
     }
   }
 
-  @Patch()
-  @UseGuards(AuthGuard)
-  async updateReview(@Request() req: any, @Body() data: UpdateReviewDto) {
-    try {
-      const userId = req.user?.sub;
+  // @Patch()
+  // @UseGuards(AuthGuard)
+  // async updateReview(@Request() req: any, @Body() data: UpdateReviewDto) {
+  //   try {
+  //     const userId = req.user?.sub;
 
-      const response = await this.reviewService.updateReview(userId, data);
+  //     const response = await this.reviewService.updateReview(userId, data);
 
-      return new ResponseContentModel(200, 'Sửa đánh giá thành công', response);
-    } catch (error) {
-      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
-        [(error as Error).message || 'Unknown error occurred'],
-      ]);
-    }
-  }
+  //     return new ResponseContentModel(200, 'Sửa đánh giá thành công', response);
+  //   } catch (error) {
+  //     return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+  //       [(error as Error).message || 'Unknown error occurred'],
+  //     ]);
+  //   }
+  // }
 
   @Get('product/:productId')
   @UseGuards(AuthGuard)

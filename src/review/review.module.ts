@@ -9,6 +9,7 @@ import {
   UserInformation,
   UserInformationSchema,
 } from '../common/models/schema/user-info.schema';
+import { Order, OrderSchema } from '../common/models/schema/order.schema';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import {
     MongooseModule.forFeature([
       { name: Review.name, schema: ReviewSchema },
       { name: UserInformation.name, schema: UserInformationSchema },
+      { name: Order.name, schema: OrderSchema },
     ]),
   ],
   controllers: [ReviewController],

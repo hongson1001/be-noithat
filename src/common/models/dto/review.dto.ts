@@ -1,12 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class CreateReviewDto {
+class ProductReviewDto {
   @IsString()
   productId: string;
-
-  @IsString()
-  orderId: string;
 
   @IsNumber()
   rating: number;
@@ -15,4 +12,12 @@ export class CreateReviewDto {
   comment?: string;
 }
 
-export class UpdateReviewDto extends PartialType(CreateReviewDto) {}
+export class CreateReviewDto {
+  @IsString()
+  orderId: string; // Đơn hàng cần đánh giá
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductReviewDto)
+  reviews: ProductReviewDto[];
+}

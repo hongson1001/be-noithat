@@ -6,15 +6,13 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Review, ReviewDocument } from '../common/models/schema/review.schema';
 import { Model } from 'mongoose';
-import {
-  CreateReviewDto,
-  UpdateReviewDto,
-} from '../common/models/dto/review.dto';
+import { CreateReviewDto } from '../common/models/dto/review.dto';
 import { PaginationSet } from '../common/models/response';
 import {
   UserInformation,
   UserInformationDocument,
 } from '../common/models/schema/user-info.schema';
+import { Order, OrderDocument } from '../common/models/schema/order.schema';
 
 @Injectable()
 export class ReviewService {
@@ -23,24 +21,70 @@ export class ReviewService {
     private reviewModel: Model<ReviewDocument>,
     @InjectModel(UserInformation.name)
     private uiModel: Model<UserInformationDocument>,
+    @InjectModel(Order.name)
+    private orderModel: Model<OrderDocument>,
   ) {}
 
-  async creatReview(userId: string, data: CreateReviewDto): Promise<Review> {
-    const existingReview = await this.reviewModel.findOne({
-      userId,
-      productId: data.productId,
-      orderId: data.orderId,
-    });
-    if (existingReview) {
+  async creatReview(userId: string, data: CreateReviewDto): Promise<Review[]> {
+    // Tìm đơn hàng của user
+    const order = await this.orderModel
+      .findOne({ _id: data.orderId, userId })
+      .exec();
+
+    if (!order) {
+      throw new NotFoundException('Không tìm thấy đơn hàng.');
+    }
+
+    // Kiểm tra xem đơn hàng đã được giao thành công chưa
+    if (order.status !== 'delivered') {
       throw new BadRequestException(
-        'Bạn đã đánh giá sản phẩm này trong đơn hàng này rồi.',
+        'Đơn hàng chưa giao thành công, không thể đánh giá.',
       );
     }
 
-    const review = new this.reviewModel({ userId, ...data });
-    await review.save();
+    // Lấy danh sách các sản phẩm trong đơn hàng
+    const orderProductIds = order.items.map((item) =>
+      item.productId.toString(),
+    );
 
-    return review;
+    // Kiểm tra các sản phẩm được gửi trong request có nằm trong đơn hàng không
+    for (const review of data.reviews) {
+      if (!orderProductIds.includes(review.productId)) {
+        throw new BadRequestException(
+          `Sản phẩm ${review.productId} không thuộc đơn hàng này.`,
+        );
+      }
+    }
+
+    // Kiểm tra xem sản phẩm đã được đánh giá chưa
+    const existingReviews = await this.reviewModel.find({
+      userId,
+      orderId: data.orderId,
+      productId: { $in: data.reviews.map((r) => r.productId) },
+    });
+
+    const reviewedProductIds = existingReviews.map((r) =>
+      r.productId.toString(),
+    );
+
+    for (const review of data.reviews) {
+      if (reviewedProductIds.includes(review.productId)) {
+        throw new BadRequestException(
+          `Bạn đã đánh giá sản phẩm ${review.productId} trong đơn hàng này rồi.`,
+        );
+      }
+    }
+
+    // Lưu đánh giá cho từng sản phẩm đủ điều kiện
+    const newReviews = data.reviews.map((reviewData) => ({
+      userId,
+      orderId: data.orderId,
+      productId: reviewData.productId,
+      rating: reviewData.rating,
+      comment: reviewData.comment,
+    }));
+
+    return await this.reviewModel.insertMany(newReviews);
   }
 
   async getProductReviews(
@@ -79,19 +123,19 @@ export class ReviewService {
     return review;
   }
 
-  async updateReview(userId: string, data: UpdateReviewDto): Promise<Review> {
-    const review = await this.reviewModel.findOneAndUpdate(
-      { _id: userId },
-      { $set: data },
-      { new: true },
-    );
-    if (!review) {
-      throw new NotFoundException(
-        'Không tìm thấy đánh giá hoặc bạn không có quyền chỉnh sửa.',
-      );
-    }
-    return review;
-  }
+  // async updateReview(userId: string, data: UpdateReviewDto): Promise<Review> {
+  //   const review = await this.reviewModel.findOneAndUpdate(
+  //     { _id: userId },
+  //     { $set: data },
+  //     { new: true },
+  //   );
+  //   if (!review) {
+  //     throw new NotFoundException(
+  //       'Không tìm thấy đánh giá hoặc bạn không có quyền chỉnh sửa.',
+  //     );
+  //   }
+  //   return review;
+  // }
 
   async deleteReview(userId: string): Promise<any> {
     const result = await this.reviewModel.findOneAndDelete({ _id: userId });
