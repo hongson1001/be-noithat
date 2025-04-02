@@ -11,12 +11,18 @@ import {
   UpdateReviewDto,
 } from '../common/models/dto/review.dto';
 import { PaginationSet } from '../common/models/response';
+import {
+  UserInformation,
+  UserInformationDocument,
+} from '../common/models/schema/user-info.schema';
 
 @Injectable()
 export class ReviewService {
   constructor(
     @InjectModel(Review.name)
     private reviewModel: Model<ReviewDocument>,
+    @InjectModel(UserInformation.name)
+    private uiModel: Model<UserInformationDocument>,
   ) {}
 
   async creatReview(userId: string, data: CreateReviewDto): Promise<Review> {
@@ -48,7 +54,21 @@ export class ReviewService {
       this.reviewModel.countDocuments({ productId }).exec(),
     ]);
 
-    return new PaginationSet(totalItems, page, limit, data);
+    const userIds = data.map((r) => r.userId);
+
+    const users = await this.uiModel
+      .find({ userId: { $in: userIds } })
+      .select('userId fullName')
+      .exec();
+
+    const userMap = new Map(users.map((u) => [u.userId, u.fullName]));
+
+    const enrichedReviews = data.map((r) => ({
+      ...r.toObject(),
+      fullName: userMap.get(r.userId) || 'Người dùng ẩn danh',
+    }));
+
+    return new PaginationSet(totalItems, page, limit, enrichedReviews);
   }
 
   async getReviewDetail(userId: string) {

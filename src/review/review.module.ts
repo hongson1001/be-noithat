@@ -5,6 +5,10 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Review, ReviewSchema } from '../common/models/schema/review.schema';
+import {
+  UserInformation,
+  UserInformationSchema,
+} from '../common/models/schema/user-info.schema';
 
 @Module({
   imports: [
@@ -18,7 +22,10 @@ import { Review, ReviewSchema } from '../common/models/schema/review.schema';
         expiresIn: '24h',
       },
     }),
-    MongooseModule.forFeature([{ name: Review.name, schema: ReviewSchema }]),
+    MongooseModule.forFeature([
+      { name: Review.name, schema: ReviewSchema },
+      { name: UserInformation.name, schema: UserInformationSchema },
+    ]),
   ],
   controllers: [ReviewController],
   providers: [ReviewService],
