@@ -24,6 +24,7 @@ import {
 import { User, UserDocument } from '../common/models/schema/user.schema';
 import { PaginationSet } from '../common/models/response';
 import { Cart, CartDocument } from '../common/models/schema/cart.schema';
+import { Review, ReviewDocument } from '../common/models/schema/review.schema';
 
 @Injectable()
 export class OrderService {
@@ -40,6 +41,8 @@ export class OrderService {
     private userModel: Model<UserDocument>,
     @InjectModel(Cart.name)
     private cartModel: Model<CartDocument>,
+    @InjectModel(Review.name)
+    private reviewModel: Model<ReviewDocument>,
 
     private readonly mailerService: CustomerMailerService,
     private readonly configService: ConfigService,
@@ -77,7 +80,6 @@ export class OrderService {
 
     let totalPrice = 0;
 
-    // Xử lý sản phẩm song song
     const productUpdates = data.items.map(async (item) => {
       const product = await this.proModel.findById(item.productId);
       if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
@@ -178,7 +180,6 @@ export class OrderService {
     return new PaginationSet(page, limit, totalItems, formattedOrders);
   }
 
-  //Lấy danh sách đơn hàng cho user
   async getUserOrders(
     userId: string,
     page: number,
@@ -196,7 +197,27 @@ export class OrderService {
       this.orderModel.countDocuments({ userId }).exec(),
     ]);
 
-    return new PaginationSet(page, limit, totalItems, data);
+    const ordersWithReviewStatus = await Promise.all(
+      data.map(async (order) => {
+        const orderProductIds = order.items.map((item) =>
+          item.productId._id.toString(),
+        );
+
+        const existingReviews = await this.reviewModel.find({
+          userId,
+          orderId: order._id.toString(),
+          productId: { $in: orderProductIds },
+        });
+
+        const isReviewed = existingReviews.length === order.items.length;
+
+        return {
+          ...order.toObject(),
+          isReviewed,
+        };
+      }),
+    );
+    return new PaginationSet(page, limit, totalItems, ordersWithReviewStatus);
   }
 
   //Lấy chi tiết đơn hàng

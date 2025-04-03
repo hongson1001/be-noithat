@@ -14,6 +14,7 @@ import { Product, ProductSchema } from '../common/models/schema/product.schema';
 import { Voucher, VoucherSchema } from '../common/models/schema/voucher.schema';
 import { User, UserSchema } from '../common/models/schema/user.schema';
 import { Cart, CartSchema } from '../common/models/schema/cart.schema';
+import { Review, ReviewSchema } from '../common/models/schema/review.schema';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { Cart, CartSchema } from '../common/models/schema/cart.schema';
       { name: Voucher.name, schema: VoucherSchema },
       { name: User.name, schema: UserSchema },
       { name: Cart.name, schema: CartSchema },
+      { name: Review.name, schema: ReviewSchema },
     ]),
   ],
   controllers: [OrderController],
