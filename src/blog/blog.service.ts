@@ -30,7 +30,7 @@ export class BlogService {
     await sharp(buffer)
       .resize(800, 600)
       .toFormat('jpeg')
-      .jpeg({ quality: 80 })
+      .jpeg({ quality: 100 })
       .toFile(filePath);
 
     return `/uploads/${fileName}`;

@@ -35,7 +35,7 @@ export class BlogController {
   }
 
   @Get()
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async getBlogs(@Query('page') page = 1, @Query('limit') limit = 10) {
     try {
       const response = await this.blogService.list(page, limit);
@@ -52,7 +52,7 @@ export class BlogController {
   }
 
   @Get(':blogId')
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async getBlogById(@Param('blogId') blogId: string) {
     try {
       const response = await this.blogService.detail(blogId);
