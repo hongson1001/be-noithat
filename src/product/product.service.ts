@@ -136,9 +136,7 @@ export class ProductService {
     return new PaginationSet(page, limit, totalItems, dataWithStatus);
   }
 
-  async bestSellers(
-    limit: number,
-  ): Promise<{ totalItem: number; products: Product[] }> {
+  async bestSellers(limit: number): Promise<Product[]> {
     const products = await this.proModel
       .find()
       .sort({ sold: -1 })
@@ -146,11 +144,6 @@ export class ProductService {
       .select('categories name price sku size status images sold')
       .exec();
 
-    const totalItem = products.length;
-
-    return {
-      totalItem,
-      products,
-    };
+    return products;
   }
 }
