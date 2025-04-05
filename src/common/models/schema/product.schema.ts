@@ -3,11 +3,8 @@ import { Document, Schema as MongooseSchema } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Product {
-  @Prop({
-    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Category' }],
-    default: [],
-  })
-  categories: MongooseSchema.Types.ObjectId[];
+  @Prop({ type: [String], default: [] })
+  categories: string[];
 
   @Prop({ required: true })
   name: string;

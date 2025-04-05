@@ -101,14 +101,20 @@ export class ProductService {
     const skip = (page - 1) * limit;
     const filter: any = {};
 
+    // Tìm kiếm theo tên hoặc mã sản phẩm (SKU)
     if (search) {
       filter['$or'] = [
         { name: { $regex: search, $options: 'i' } },
         { sku: { $regex: search, $options: 'i' } },
       ];
     }
+
     if (categories) {
-      filter['categories'] = categories;
+      const categoryArray = categories.split(',').map((id) => id.trim());
+
+      if (categoryArray.length > 0) {
+        filter['categories'] = { $in: categoryArray };
+      }
     }
 
     const [data, totalItems] = await Promise.all([
