@@ -228,4 +228,31 @@ export class UserService {
     };
   }
   //#endregion
+
+  //Quên mật khẩu
+  async forgotPassword(email: string): Promise<any> {
+    const user = await this.userModel.findOne({ email }).exec();
+    if (!user) {
+      throw new NotFoundException('Email không tồn tại');
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 phút
+
+    user.otp = otp;
+    user.otpExpiresAt = otpExpiresAt;
+    await user.save();
+
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Khôi phục mật khẩu - OTP của bạn',
+      text: `Mã OTP của bạn là: ${otp}. Mã sẽ hết hạn sau 5 phút.`,
+    });
+
+    await sendLogsTelegram(
+      `OTP quên mật khẩu cho ${email}: ${otp} (hết hạn sau 5 phút)`,
+    );
+
+    return 'Mã OTP đã được gửi tới email của bạn';
+  }
 }

@@ -167,4 +167,17 @@ export class UserController {
     }
   }
   //#endregion
+
+  @Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    try {
+      const response = await this.userService.forgotPassword(email);
+
+      return new ResponseContentModel<any>(200, 'Mã OTP đã được gửi', response);
+    } catch (error) {
+      return new ErrorResponseModel(500, 'Có lỗi trong quá trình xử lý', [
+        [(error as Error).message || 'Unknown error occurred'],
+      ]);
+    }
+  }
 }
