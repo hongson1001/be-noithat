@@ -28,6 +28,10 @@ export class ProductService {
   ) {}
 
   private async saveImageLocally(base64: string): Promise<string> {
+    if (!base64 || !base64.includes(',')) {
+      throw new Error('Ảnh không hợp lệ hoặc không đúng định dạng base64');
+    }
+
     const buffer = Buffer.from(base64.split(',')[1], 'base64');
     const fileName = `${Date.now()}.jpg`;
     const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads');
@@ -55,18 +59,30 @@ export class ProductService {
   }
 
   async modify(productId: string, data: UpdateProductDto): Promise<Product> {
-    if (data.images) {
-      const imagePaths = await Promise.all(
-        data.images.map((img) => this.saveImageLocally(img)),
+    if (data.images && Array.isArray(data.images)) {
+      const newBase64Images = data.images.filter(
+        (img) => typeof img === 'string' && img.startsWith('data:image/'),
       );
-      data.images = imagePaths;
+
+      const existingImages = data.images.filter(
+        (img) => typeof img === 'string' && !img.startsWith('data:image/'),
+      );
+
+      const uploadedImages = await Promise.all(
+        newBase64Images.map((img) => this.saveImageLocally(img)),
+      );
+
+      data.images = [...existingImages, ...uploadedImages];
     }
+
     const product = await this.proModel
       .findByIdAndUpdate(productId, data, { new: true })
       .exec();
+
     if (!product) {
       throw new NotFoundException('Không tìm thấy sản phẩm');
     }
+
     return product;
   }
 
