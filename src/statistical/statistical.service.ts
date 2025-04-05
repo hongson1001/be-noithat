@@ -7,7 +7,6 @@ import {
   Product,
   ProductDocument,
 } from '../common/models/schema/product.schema';
-import * as moment from 'moment-timezone';
 
 @Injectable()
 export class StatisticalService {
@@ -149,48 +148,74 @@ export class StatisticalService {
   }
 
   //Thống kê doanh thu theo ngày, tuần tháng
-  async getRevenueStatistics(date: string) {
-    const startOfMonth = moment(date).startOf('month').toDate();
-    const endOfMonth = moment(date).endOf('month').toDate();
+  async getRevenueStatistics(type: 'day' | 'week' | 'month', date: string) {
+    let startDate: Date, endDate: Date, groupFormat: any;
 
-    const orders = await this.orderModel.aggregate([
+    if (type === 'day') {
+      // 📅 Thống kê theo giờ trong ngày (từ 0:00 đến 23:59)
+      startDate = new Date(date);
+      startDate.setHours(0, 0, 0, 0); // Đưa về 0:00
+      endDate = new Date(startDate);
+      endDate.setHours(23, 59, 59, 999); // Đưa về 23:59
+      groupFormat = { $hour: '$createdAt' }; // Nhóm theo giờ
+    } else if (type === 'week') {
+      // 📅 Thống kê theo ngày trong tuần
+      startDate = new Date(date);
+      const dayOfWeek = startDate.getDay(); // Lấy thứ trong tuần
+
+      if (dayOfWeek === 0) {
+        startDate.setDate(startDate.getDate() - 6);
+      } else {
+        startDate.setDate(startDate.getDate() - dayOfWeek + 1);
+      }
+
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      groupFormat = { $dayOfMonth: '$createdAt' };
+    } else {
+      // 📅 Thống kê theo ngày trong tháng
+      const [year, month] = date.split('-').map(Number);
+      startDate = new Date(year, month - 1, 1);
+      endDate = new Date(year, month, 1);
+      groupFormat = { $dayOfMonth: '$createdAt' };
+    }
+
+    // 🔍 Truy vấn doanh thu
+    const revenue = await this.orderModel.aggregate([
       {
         $match: {
-          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
-          status: 'completed', // Bạn có thể thay đổi điều kiện theo yêu cầu
-          totalPrice: { $gt: 0 },
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: 'completed',
         },
       },
       {
         $group: {
-          _id: { $month: '$createdAt' },
+          _id: groupFormat, // Nhóm theo giờ/ngày
           totalRevenue: { $sum: '$totalPrice' },
           totalOrders: { $sum: 1 },
         },
       },
-      {
-        $project: {
-          _id: 0,
-          month: '$_id',
-          totalRevenue: 1,
-          totalOrders: 1,
-        },
-      },
-      {
-        $sort: { month: 1 }, // Sắp xếp theo tháng
-      },
+      { $sort: { _id: 1 } },
     ]);
 
+    // 🔄 Chuẩn hóa dữ liệu để tránh thiếu giờ/ngày nào đó
     const labels = [];
     const data = [];
+    let currentDate = new Date(startDate);
 
-    // Kiểm tra nếu có dữ liệu và trả về doanh thu của tháng
-    if (orders.length > 0) {
-      labels.push(`Tháng ${orders[0].month}`);
-      data.push(orders[0].totalRevenue);
-    } else {
-      labels.push(`Tháng ${moment(date).month() + 1}`);
-      data.push(0);
+    while (currentDate <= endDate) {
+      const key =
+        type === 'day' ? currentDate.getHours() : currentDate.getDate();
+      const found = revenue.find((r) => r._id === key);
+
+      labels.push(type === 'day' ? `${key}:00` : `Ngày ${key}`);
+      data.push(found ? found.totalRevenue : 0);
+
+      if (type === 'day') {
+        currentDate.setHours(currentDate.getHours() + 1);
+      } else {
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
     }
 
     return {

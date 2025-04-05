@@ -106,9 +106,15 @@ export class StatisticalController {
 
   @Get('revenue-statistics')
   @UseGuards(AuthGuard)
-  async getRevenueStatistics(@Query('date') date: string) {
+  async getRevenueStatistics(
+    @Query('type') type: 'day' | 'week' | 'month',
+    @Query('date') date: string,
+  ) {
     try {
-      const result = await this.statisticalService.getRevenueStatistics(date);
+      const result = await this.statisticalService.getRevenueStatistics(
+        type,
+        date,
+      );
 
       return new ResponseContentModel(
         200,
