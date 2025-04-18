@@ -24,6 +24,9 @@ export class Voucher {
   @Prop({ default: true })
   isActive: boolean;
 
+  @Prop({ enum: ['active', 'unactive'], default: 'active' })
+  status: string;
+
   @Prop()
   expiryDate?: Date;
 }

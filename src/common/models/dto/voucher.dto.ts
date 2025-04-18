@@ -40,6 +40,10 @@ export class CreateVoucherDto {
   @IsDateString()
   @IsOptional()
   expiryDate?: string;
+
+  @IsString()
+  @IsOptional()
+  status: string;
 }
 
 export class UpdateVoucherDto extends PartialType(CreateVoucherDto) {}

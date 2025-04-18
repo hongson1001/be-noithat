@@ -63,7 +63,7 @@ export class VoucherService {
         .skip(skip)
         .limit(limit)
         .select(
-          'code name discount quantity minOrderValue isPercentage expiryDate',
+          'code name discount quantity isActive minOrderValue isPercentage expiryDate status',
         )
         .exec(),
       this.voucherModel.countDocuments(filter).exec(),
