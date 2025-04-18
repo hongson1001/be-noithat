@@ -116,7 +116,7 @@ export class UserService {
           <p>Tài khoản: ${data.email}</p>
           <p>Mật khẩu: ${data.password}</p>
           <p>Vui lòng không cung cấp tài khoản với bất kỳ ai</p>
-          <p>Shop Fashion, trân trọng</p>
+          <p>Kadi House, trân trọng</p>
           `,
     });
 
